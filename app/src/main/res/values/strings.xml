@@ -4,8 +4,9 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_fill">fill</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
+    <string name="welcome">"欢迎！"</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
@@ -160,6 +161,8 @@
     <string name="hot_news">热门新闻</string>
     <string name="new_tip_start_dont_hide">自定义两者之间的动画启动一个Fragment，并且不隐藏自己</string>
     <string name="new_tip_start">自定义两者之间的动画启动一个Fragment</string>
+    <string name="pre_user">sjh</string>
+    <string name="pre_pwd">1234563</string>
 
     <string-array name="array_title">
         <item>Andorid O Developer Preview</item>

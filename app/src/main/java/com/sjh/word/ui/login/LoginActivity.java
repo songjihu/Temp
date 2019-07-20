@@ -42,16 +42,23 @@ public class LoginActivity extends AppCompatActivity implements LifecycleOwner {
 
         final EditText usernameEditText = findViewById(R.id.username);
         final EditText passwordEditText = findViewById(R.id.password);
+
         final Button loginButton = findViewById(R.id.login);
+        final Button login_fill_Button = findViewById(R.id.login_fill);
         final ProgressBar loadingProgressBar = findViewById(R.id.loading);
+
+
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
+            //有更改则调用次函数
             public void onChanged(@Nullable LoginFormState loginFormState) {
                 if (loginFormState == null) {
                     return;
                 }
+                //设置按钮为可用
                 loginButton.setEnabled(loginFormState.isDataValid());
+                //从错误逻辑中获取到错误则报错
                 if (loginFormState.getUsernameError() != null) {
                     usernameEditText.setError(getString(loginFormState.getUsernameError()));
                 }
@@ -81,6 +88,7 @@ public class LoginActivity extends AppCompatActivity implements LifecycleOwner {
             }
         });
 
+        //监听文本内容是否更改过
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -94,14 +102,18 @@ public class LoginActivity extends AppCompatActivity implements LifecycleOwner {
 
             @Override
             public void afterTextChanged(Editable s) {
+                //更改后则调用
                 loginViewModel.loginDataChanged(usernameEditText.getText().toString(),
                         passwordEditText.getText().toString());
+                Log.i("test:",usernameEditText.getText().toString()+passwordEditText.getText().toString());
             }
         };
-        usernameEditText.addTextChangedListener(afterTextChangedListener);
+
+        //设置修改监听器
+        //usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
+            //编辑事件监听
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -122,6 +134,18 @@ public class LoginActivity extends AppCompatActivity implements LifecycleOwner {
                 startActivity(new Intent(LoginActivity.this, com.sjh.word.demo_zhihu.MainActivity.class));
             }
         });
+
+        login_fill_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //预先设置用户名和密码
+                usernameEditText.setText(R.string.pre_user);
+                passwordEditText.setText(R.string.pre_pwd);
+                //设置按钮为可用
+                //loginButton.setEnabled(true);
+                //Log.i("login_test","666");
+            }
+        });
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
@@ -138,4 +162,6 @@ public class LoginActivity extends AppCompatActivity implements LifecycleOwner {
     public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
+
+
 }

@@ -12,6 +12,14 @@
         android:textSize="24sp"
         android:layout_height="wrap_content"/>
 
+    <Button
+        android:id="@+id/wirte_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom|start"
+        android:text="点击写入"
+        />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarSettings"
         android:layout_width="match_parent"

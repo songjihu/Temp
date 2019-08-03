@@ -37,6 +37,7 @@ public class ZhihuFirstFragment extends BaseMainFragment {
         super.onLazyInitView(savedInstanceState);
 
         if (findChildFragment(FirstHomeFragment.class) == null) {
+            //又此层创建加载FirstHomeFragment
             loadRootFragment(R.id.fl_first_container, FirstHomeFragment.newInstance());
         }
     }

@@ -38,6 +38,13 @@ public class ViewPagerFragment extends SupportFragment {
     }
 
     private void initView(View view) {
+
+        /**
+         *添加标签到mTab
+         * 页面组成
+         * 上方 Tab
+         * 下方 ViewPager 需要适配器 设置完成后加载给Tab
+         */
         mTab = (TabLayout) view.findViewById(R.id.tab);
         mViewPager = (ViewPager) view.findViewById(R.id.viewPager);
 

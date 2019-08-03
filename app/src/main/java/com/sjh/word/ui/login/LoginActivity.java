@@ -144,6 +144,7 @@ public class LoginActivity extends AppCompatActivity implements LifecycleOwner {
                 //设置按钮为可用
                 //loginButton.setEnabled(true);
                 //Log.i("login_test","666");
+
             }
         });
     }

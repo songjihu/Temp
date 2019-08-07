@@ -163,6 +163,9 @@
     <string name="new_tip_start">自定义两者之间的动画启动一个Fragment</string>
     <string name="pre_user">sjh</string>
     <string name="pre_pwd">1234563</string>
+    <string name="write_local">点击写入</string>
+    <string name="read_local">点击读出</string>
+    <string name="write_cloud">写入云端</string>
 
     <string-array name="array_title">
         <item>Andorid O Developer Preview</item>

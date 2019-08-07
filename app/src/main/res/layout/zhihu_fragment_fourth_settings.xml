@@ -17,8 +17,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|bottom|start"
-        android:text="点击写入"
-        />
+        android:text="@string/write_local" />
+
+    <Button
+        android:id="@+id/read_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom|start"
+        android:text="@string/read_local"
+        android:layout_marginStart="100dp"
+        android:layout_marginLeft="100dp" />
+
+    <Button
+        android:id="@+id/write_cloud_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom|start"
+        android:text="@string/write_cloud"
+        android:layout_marginStart="200dp"
+        android:layout_marginLeft="200dp" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarSettings"
@@ -28,4 +45,22 @@
         app:popupTheme="@style/AppTheme.NoActionBar.PopupOverlay"
         android:background="@color/colorPrimary"
         app:titleTextAppearance="@style/Toolbar_TextAppearance_White"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar_wtc"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom|start"
+        android:layout_marginBottom="60dp"
+        android:progress="0"
+        android:max="100"
+        style="?android:attr/progressBarStyleHorizontal"/>
+
+    <TextView
+        android:id="@+id/text_wtc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="85dp"
+        android:text="还没开始加载!" />
 </FrameLayout>

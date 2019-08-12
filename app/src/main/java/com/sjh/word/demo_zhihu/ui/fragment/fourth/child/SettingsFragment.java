@@ -28,7 +28,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by YoKeyword on 16/6/6.
@@ -38,7 +41,8 @@ public class SettingsFragment extends SupportFragment {
     private Button button_write_local;
     private Button button_read_local;
     private Button button_write_cloud;
-
+    private String []words =new String[35];
+    //private List<String> words = new ArrayList<String>();
 
     public static SettingsFragment newInstance() {
 
@@ -58,6 +62,7 @@ public class SettingsFragment extends SupportFragment {
     }
 
     private void initView(View view) {
+        initWords();
         mToolbar = (Toolbar) view.findViewById(R.id.toolbarSettings);
 
         mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
@@ -74,12 +79,9 @@ public class SettingsFragment extends SupportFragment {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(getActivity(), "nihao", Toast.LENGTH_LONG).show();
-                try {
-                    //Log.i("run_try","");
-                    writeExternal(getActivity(),"test_sjh.txt","66666");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                //Log.i("run_try","");
+                //writeExternal(getActivity(),"test_sjh.txt","66666");
+                new WriteToExternalTask().execute(words);
             }
         });
 
@@ -113,7 +115,7 @@ public class SettingsFragment extends SupportFragment {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }*/
-                new WriteToCloudTask().execute();
+                new WriteToCloudTask().execute(words);
             }
         });
 
@@ -260,7 +262,7 @@ public class SettingsFragment extends SupportFragment {
                  */
                 socket.connect(new InetSocketAddress("192.168.0.105", 12345));
                 //Toast.makeText(getActivity(),"1"+socket.isConnected() , Toast.LENGTH_LONG).show();
-                System.out.println("666"+socket.isConnected());
+                //System.out.println(""+socket.isConnected());
 
 
                 /**
@@ -331,8 +333,8 @@ public class SettingsFragment extends SupportFragment {
 
     // 主布局中的UI组件
     Button button,cancel; // 加载、取消按钮
-    TextView text; // 更新的UI组件
-    ProgressBar progressBar; // 进度条
+    private TextView text; // 更新的UI组件
+    private ProgressBar progressBar; // 进度条
 
     /**
      * 步骤1：创建AsyncTask子类
@@ -359,25 +361,152 @@ public class SettingsFragment extends SupportFragment {
         @Override
         protected String doInBackground(String... params) {
 
-            try {
-                int count = 0;
-                int length = 1;
-                while (count<99) {
+            int count = 0;
+            InputStream in = null;
+            Socket socket = null;
+            //String filename = "test_sjh.txt";
+            String filename = "";
 
 
-                    count += length;
-                    // 可调用publishProgress（）显示进度, 之后将执行onProgressUpdate（）
-                    publishProgress(count);
-                    // 模拟耗时任务
-                    Thread.sleep(10);
+            //更新进度条
+            count+=20;
+            publishProgress(count);
+            //使用循环写入
+            int i=1;
+            while(i<31){
+
+
+                if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+                    filename = getActivity().getExternalCacheDir().getAbsolutePath() + File.separator + params[i];
                 }
+                try {
+                    /**
+                     * 1.扫描控制台接收文件路径名
+                     *   创建一个file引用，指向一个新的File对象，并给文件赋予地址
+                     */
+                    //System.out.println("请输入要传输文件的路径：");
+                    //scan = new Scanner(System.in);
+                    //String path = scan.nextLine();//文件路径path
+                    File file = new File(filename);//filename为新的文件路径
 
-                writeCloud(getActivity(),"test_sjh.txt");
-            }catch (InterruptedException e) {
-                e.printStackTrace();
+                    //Toast.makeText(getActivity(),file.getName() , Toast.LENGTH_LONG).show();
+
+                    /**
+                     * 2.判断文件是文本文件而不是文件夹并且路径存在
+                     *  exists()：判断文件是否存在
+                     *  isFile()：判断是不是文件
+                     */
+                    if(file.exists() && file.isFile()) {
+
+
+                        /**
+                         * 3.创建文件输入流，发送文件
+                         *   将文件输入的内容都放在file里面
+                         */
+                        in = new FileInputStream(file);
+
+                        /**
+                         * Socket 这个类实现客户端套接字(也称为“套接字”)。套接字是两台机器间通信的端点。
+                         *
+                         * 4.创建客户端套接字
+                         */
+                        socket = new Socket();
+                        //InetSocketAddress Inets = new InetSocketAddress("127.0.0.1", 12345);
+
+
+                        /**
+                         * 5.连接TCP服务器
+                         *       确定服务端的IP和端口号
+                         */
+                        try {
+                            socket.connect(new InetSocketAddress("192.168.0.105", 12345));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        //Toast.makeText(getActivity(),"1"+socket.isConnected() , Toast.LENGTH_LONG).show();
+                        //System.out.println(""+socket.isConnected());
+
+
+                        /**
+                         * 6.获取到客户端的输出流
+                         *   OutputStream     getOutputStream()
+                         *                         返回此套接字的输出流。
+                         */
+                        OutputStream out = null;
+                        try {
+                            out = socket.getOutputStream();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        /**
+                         * 7.向服务器发送文件
+                         *   自己定义了一个协议来解决粘包现象，获取文件名
+                         *   7.1.我们先将文件中的内容读取出来，放到file里面
+                         *   7.2.先读文件名  file.getName()
+                         *   7.3.将文件名转换成字节  file.getName().getBytes()
+                         *   7.4.获取文件名的字节的长度  file.getName().getBytes().length
+                         *   7.5.再在文件名长度的后面加上  \r\n 作为标识符
+                         */
+                        // 向服务器发送[文件名字节长度 \r\n]
+                        out.write((file.getName().getBytes().length + "\r\n").getBytes());
+                        // 向服务器发送[文件名字节]
+                        out.write(file.getName().getBytes());
+                        // 向服务器发送[文件字节长度\r\n]
+                        out.write((file.length() + "\r\n").getBytes());
+                        // 向服务器发送[文件字节内容]
+                        byte[] data = new byte[1024];
+                        int j = 0;
+                        while((j = in.read(data)) != -1) {
+                            out.write(data, 0, j);
+                        }
+
+                        //设置延时
+                        Thread.sleep(100);
+                        //更新进度条
+                        count+=2;
+                        publishProgress(count);
+
+                    }else {
+                        //Toast.makeText(getActivity(), "文件不存在或者一个文件~~", Toast.LENGTH_LONG).show();
+                        //System.out.println("文件不存在或者一个文件~~");
+                    }
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+                i++;
+            }
+
+            //更新进度条
+            count+=20;
+            publishProgress(count);
+
+            //关闭资源
+            try {
+                if(in != null) {
+                    in.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
+            }finally {
+                // 强制将输入流置为空
+                in = null;
             }
+            try {
+                if(socket != null) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                // 强制释放socket
+                socket = null;
+            }
+
+
+            System.out.println("文件传输完毕");
 
             return null;
         }
@@ -397,7 +526,112 @@ public class SettingsFragment extends SupportFragment {
         @Override
         protected void onPostExecute(String result) {
             // 执行完毕后，则更新UI
-            text.setText("加载完毕");
+            text.setText("写入云端完毕");
+        }
+
+        // 方法5：onCancelled()
+        // 作用：将异步任务设置为：取消状态
+        @Override
+        protected void onCancelled() {
+
+            text.setText("已取消");
+            progressBar.setProgress(0);
+
+        }
+    }
+
+    private void initWords()
+    {
+        boolean flag = true;
+        for(int i=1;i<31;i++)
+        {
+            //小于10则为01-09
+            if(flag&&i<10){
+                words[i]="unit_0"+i+".txt";
+            }
+            else{
+                flag=false;
+                words[i]="unit_"+i+".txt";
+            }
+        }
+    }
+
+    private class WriteToExternalTask extends AsyncTask<String, Integer, String> {
+
+        // 方法1：onPreExecute（）
+        // 作用：执行 线程任务前的操作
+        @Override
+        protected void onPreExecute() {
+            text.setText("加载中");
+            // 执行前显示提示
+        }
+
+
+        // 方法2：doInBackground（）
+        // 作用：接收输入参数、执行任务中的耗时操作、返回 线程任务执行的结果
+        // 此处通过计算从而模拟“加载进度”的情况
+        @Override
+        protected String doInBackground(String... params) {
+
+            int count = 0;
+            String filename;//文件名
+            String content ;//文件内容
+            //更新进度条
+            count+=20;
+            publishProgress(count);
+
+            //循环写入
+            int i=1;
+            while(i<31)
+            {
+                try {
+                    String storageState = Environment.getExternalStorageState();
+
+                    //判断是否存在可用的的SD Card
+                    if (storageState.equals(Environment.MEDIA_MOUNTED)) {
+
+                        //路径： /storage/emulated/0/Android/data/com.yoryky.demo/cache/yoryky.txt
+                        filename = getActivity().getExternalCacheDir().getAbsolutePath()  + File.separator + params[i];
+                        FileOutputStream outputStream = new FileOutputStream(filename);
+                        content="This is unit"+i;
+                        outputStream.write(content.getBytes());
+                        outputStream.close();
+                        count+=2;
+                        publishProgress(count);
+                        //Toast.makeText(getActivity(), "写入完成"+filename, Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        //Toast.makeText(getActivity(), "写入失败", Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+                i++;
+            }
+
+            count+=20;
+            publishProgress(count);
+            System.out.println("文件写入完毕");
+            return null;
+        }
+
+        // 方法3：onProgressUpdate（）
+        // 作用：在主线程 显示线程任务执行的进度
+        @Override
+        protected void onProgressUpdate(Integer... progresses) {
+
+            progressBar.setProgress(progresses[0]);
+            text.setText("loading..." + progresses[0] + "%");
+
+        }
+
+        // 方法4：onPostExecute（）
+        // 作用：接收线程任务执行结果、将执行结果显示到UI组件
+        @Override
+        protected void onPostExecute(String result) {
+            // 执行完毕后，则更新UI
+            text.setText("写入本地完毕");
         }
 
         // 方法5：onCancelled()
